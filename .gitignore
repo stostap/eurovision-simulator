@@ -1,0 +1,6 @@
+# Binaries
+*.exe
+
+# Go build folder
+/bin/
+/pkg/
