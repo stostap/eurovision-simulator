@@ -54,6 +54,8 @@ func main() {
 	eurovisionCtrl := controllers.NewEurovisionController(db)
 
 	event, err := eurovisionCtrl.StartEurovision()
+	votingSim := controllers.NewVotingSimulator(db)
+	votingSim.SimulateVoting(&event.SemiFinal1)
 	/*
 		// Create a Eurovision event
 		createEurovisionEvent(db)

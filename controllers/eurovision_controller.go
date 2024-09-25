@@ -56,7 +56,7 @@ func (controller *EurovisionController) StartEurovision() (*models.Eurovision, e
 		"Israel",
 		"Italy",
 		"Latvia",
-		"Lithuania",
+		/*"Lithuania",
 		"Malta",
 		"Moldova",
 		"Netherlands",
@@ -72,7 +72,7 @@ func (controller *EurovisionController) StartEurovision() (*models.Eurovision, e
 		"Sweden",
 		"Switzerland",
 		"Ukraine",
-		"United Kingdom",
+		"United Kingdom",*/
 	}
 
 	contestants, err := populateContestants(controller.DB, countries)
@@ -100,5 +100,5 @@ func (controller *EurovisionController) GetVotingResults() ([]models.VotingResul
 		return nil, err
 	}
 
-	return eurovision.Final.VotingResults, nil
+	return eurovision.Final.Voting, nil
 }

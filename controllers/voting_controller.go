@@ -1,6 +1,11 @@
 package controllers
 
 import (
+	"eurovision-simulator/models"
+	"math/rand"
+	"slices"
+	"time"
+
 	"gorm.io/gorm"
 )
 
@@ -12,6 +17,73 @@ type VotingSimulator struct {
 // NewVotingSimulator creates a new VotingSimulator
 func NewVotingSimulator(db *gorm.DB) *VotingSimulator {
 	return &VotingSimulator{DB: db}
+}
+
+func (sim *VotingSimulator) SimulateVoting(c *models.Contest) error {
+	rand.Seed(time.Now().UnixNano())
+
+	// Points for the top 10 contestants
+	pointsDistribution := []int{12, 10, 8, 7, 6, 5, 4, 3, 2, 1}
+
+	for _, voter := range c.Contestants {
+		vr := models.VotingResults{
+			ContestantID:            voter.ID,
+			ContestID:               c.ID,
+			JuryVotesByContestant:   make(map[uint]int),
+			PublicVotesByContestant: make(map[uint]int)}
+		c.Voting = append(c.Voting, vr)
+		/*if err := sim.DB.Create(&vr).Error; err != nil {
+			return err
+		}*/
+	}
+
+	for _, voter := range c.Contestants {
+		var candidates []models.Contestant
+		for _, can := range c.Contestants {
+			if voter.ID != can.ID {
+				candidates = append(candidates, can)
+			}
+		}
+
+		rand.Shuffle(len(candidates), func(i, j int) {
+			candidates[i], candidates[j] = candidates[j], candidates[i]
+		})
+
+		// Select top 10 contestants for jury voting
+		topContestantsForJury := candidates[:10]
+
+		for i, pc := range topContestantsForJury {
+			idx := slices.IndexFunc(c.Voting, func(vr models.VotingResults) bool {
+				return pc.ID == vr.ContestantID
+			})
+			c.Voting[idx].JuryVotes += pointsDistribution[i]
+			c.Voting[idx].TotalScore += pointsDistribution[i]
+			c.Voting[idx].JuryVotesByContestant[voter.ID] = pointsDistribution[i]
+		}
+
+		rand.Shuffle(len(candidates), func(i, j int) {
+			candidates[i], candidates[j] = candidates[j], candidates[i]
+		})
+
+		// Select top 10 contestants for public voting
+		topContestantsForPublic := candidates[:10]
+
+		for i, pc := range topContestantsForPublic {
+			idx := slices.IndexFunc(c.Voting, func(vr models.VotingResults) bool {
+				return pc.ID == vr.ContestantID
+			})
+			c.Voting[idx].PublicVotes += pointsDistribution[i]
+			c.Voting[idx].TotalScore += pointsDistribution[i]
+			c.Voting[idx].PublicVotesByContestant[voter.ID] = pointsDistribution[i]
+		}
+
+	}
+
+	if err := sim.DB.Create(&c.Voting).Error; err != nil {
+		return err
+	}
+	//sim.DB.Model(&c).Update("voting", c.Voting)
+	return nil
 }
 
 // SimulateVoting simulates both jury and public voting for a given contest
