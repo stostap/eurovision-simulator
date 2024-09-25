@@ -56,21 +56,6 @@ func main() {
 	event, err := eurovisionCtrl.StartEurovision()
 	votingSim := controllers.NewVotingSimulator(db)
 	votingSim.SimulateVoting(&event.SemiFinal1)
-	/*
-		// Create a Eurovision event
-		createEurovisionEvent(db)
-
-		// Fetch and display all Eurovision events from the database
-		var eurovisionEvents []models.Eurovision
-		db.Preload("SemiFinal1").Preload("SemiFinal2").Preload("Final").Find(&eurovisionEvents)
-
-		// Print the Eurovision events to the console
-		for _, event := range eurovisionEvents {
-			fmt.Printf("Eurovision %d:\n", event.Year)
-			fmt.Printf("  SemiFinal 1: %s\n", event.SemiFinal1.Name)
-			fmt.Printf("  SemiFinal 2: %s\n", event.SemiFinal2.Name)
-			fmt.Printf("  Final: %s\n", event.Final.Name)
-		}*/
 
 	fmt.Printf("Eurovision %d:\n", event.Year)
 	fmt.Printf("  SemiFinal 1: %v\n", event.SemiFinal1)
